@@ -8,10 +8,6 @@ BROKER = '192.168.1.20'
 PORT = 1883
 TOPIC = 'O2O/SensorControl'
 
-
-# パスワードの入力
-passwd = ('a\n').encode()
-
 # Callback function
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -25,10 +21,10 @@ def on_message(client, userdata, msg):
         payload = json.loads(msg.payload)
         if payload.get("command") == 1:
             print("shutdown now!")
-            subprocess.run(["sudo", "shutdown", "-h", "now"], input=passwd)
+            subprocess.run(["shutdown", "-h", "now"])
         elif payload.get("command") == 2:
             print("reboot now!")
-            subprocess.run(["sudo", "shutdown", "-r", "now"], input=passwd)
+            subprocess.run(["shutdown", "-r", "now"])
         else:
             print(f"Message received: {msg.topic} {msg.payload}")
     except json.JSONDecodeError:
@@ -38,7 +34,7 @@ def on_message(client, userdata, msg):
 while True:
     try:
         # make client
-        client = mqtt.Client()
+        client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
         client.on_connect = on_connect
         client.on_message = on_message
 
